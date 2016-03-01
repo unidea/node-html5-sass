@@ -1,0 +1,11 @@
+{
+  "name": "html-sass",
+  "version": "1.0.0",
+  "description": "Template for a simple site using html and sass",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Marc-Antoine Duhaime (Unidea inc.)",
+  "license": "MIT"
+}
