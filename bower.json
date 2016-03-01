@@ -1,0 +1,22 @@
+{
+  "name": "html-sass",
+  "description": "Template for a simple site using html and sass",
+  "main": "index.html",
+  "authors": [
+    "Marc-Antoine Duhaime (Unidea inc.)"
+  ],
+  "license": "MIT",
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6"
+  }
+}

@@ -1,0 +1,11 @@
+body {
+    h1 {
+        font: 300 20px/25px sans-serif;
+        color: red;
+        
+        .main { 
+            font-weight: 800;
+            color: blue;
+        }
+    }
+}

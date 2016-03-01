@@ -1,4 +1,9 @@
-# Node.js
+# Project related
+build
+bower_components
+
+
+# Node.js related
 # source : https://github.com/github/gitignore/blob/master/Node.gitignore
 
 # Logs
@@ -44,7 +49,7 @@ jspm_packages
 *.css.map
 
 
-# OS X
+# OS X related
 # source : https://github.com/github/gitignore/blob/master/Global/OSX.gitignore
 
 .DS_Store
@@ -74,7 +79,7 @@ Temporary Items
 .apdisk
 
 
-# Windows
+# Windows related
 # source : https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
 
 # Windows image file caches
