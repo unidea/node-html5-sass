@@ -1,90 +1,87 @@
 'use strict';
 
-// Gulp related 
-var gulp = require('gulp'),
-    sass = require('gulp-sass'),
-    concat = require('gulp-concat'),
-    uglify = require('gulp-uglify'),
-    sourcemaps = require('gulp-sourcemaps'),
-    del = require('del');
+// Gulp related requirements
+const gulp = require('gulp');
+const sass = require('gulp-sass');
+const concat = require('gulp-concat');
+const uglify = require('gulp-uglify');
+const sourcemaps = require('gulp-sourcemaps');
+const del = require('del');
+const runSequence = require('run-sequence');
+const browserSync = require('browser-sync').create();
 
-var browserSync = require('browser-sync').create();
- 
-var paths = {
-    html:    ['./src/**/*.html'],
-    scripts: ['./src/js/**/*.js'],
-    styles:  ['./src/scss/**/*.scss'],
-    images:  ['./src/images/**/*'],
-    fonts:   ['./src/fonts/**/*'],
-    vendor:  ['./src/vendor/**/*']
+// Commun globs
+const paths = {
+  file: ['**/*.{html,xml,json,csv,yml}'],
+  js: ['js/**/*.js', '!js/**/*.min.js'],
+  scss: ['scss/**/*.scss']
 };
 
+const blacklist = [
+  '!./bower.json',
+  '!./gulpfile.js',
+  '!./LICENSE',
+  '!./node_modules{,/**}',
+  '!./package.json',
+  '!./README.md',
+  '!./scss{,/**}'
+];
+
+// Task for building a copy of the site, ready for deployment.
+gulp.task('build', function () {
+  runSequence('build:clean', ['build:ftp']);
+});
+
+// Task for removing the deployment folder
 gulp.task('build:clean', function () {
-    return del(['build']);
+  return del('deployment_build');
 });
 
-gulp.task('build:html', function () {
-    return gulp.src(paths.html)
-        .pipe(gulp.dest('./build'));
+// Task for copying the required files and folders for deployment.
+// By default, gulp ignore files and folders starting with a dot.
+gulp.task('build:ftp', function () {
+
+  let path = ['**/*'].concat(blacklist);
+
+  return gulp.src(path)
+    .pipe(gulp.dest('deployment_build'));
 });
 
-gulp.task('build:scripts', function () {
-    return gulp.src(paths.scripts)
-        .pipe(sourcemaps.init())
-        .pipe(uglify())
-        .pipe(concat('scripts.min.js'))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest('./build/js'));
+// Process JS files and return the stream.
+gulp.task('js', function () {
+  return gulp.src(paths.js)
+    .pipe(sourcemaps.init())
+    .pipe(uglify())
+    .pipe(concat('scripts.min.js'))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('./js'));
 });
 
-gulp.task('build:styles', function () {
-    return gulp.src(paths.styles)
-        .pipe(sourcemaps.init())
-        .pipe(sass().on('error', sass.logError))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest('./build/css'));
+// Process SCSS files and return the stream.
+gulp.task('scss', function () {
+  return gulp.src(paths.scss)
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('./css'))
+    .pipe(browserSync.stream());
 });
 
-gulp.task('build:images', function () {
-    return gulp.src(paths.images)
-        .pipe(gulp.dest('./build/images'));
+// Default task to launch Browser-Sync and watch JS files
+gulp.task('serve', ['js', 'scss'], function () {
+
+  // Serve files from the root of this project
+  browserSync.init({
+    server: {
+      baseDir: "./",
+      index: "index.html"
+    }
+  });
+
+  gulp.watch(paths.scss, ['scss'])
+  gulp.watch(paths.js, ['js']).on('change', browserSync.reload);
+  gulp.watch(paths.file).on('change', browserSync.reload);
 });
 
-gulp.task('build:fonts', function () {
-    return gulp.src(paths.fonts)
-        .pipe(gulp.dest('./build/fonts'));
-});
-
-gulp.task('build:vendor', function () {
-    return gulp.src(paths.vendor)
-        .pipe(gulp.dest('./build/vendor'));
-});
-
-// The default build
-gulp.task('build', [
-    'build:html', 'build:scripts', 'build:styles', 'build:images', 'build:fonts', 'build:vendor'
-]);
-
-// Rerun the task when a file changes 
-gulp.task('watch', function () {
-    gulp.watch(paths.scripts, ['build:clean']);
-    gulp.watch(paths.scripts, ['build:scripts']);
-    gulp.watch(paths.styles, ['build:styles']);
-    gulp.watch(paths.images, ['build:images']);
-    gulp.watch(paths.vendor, ['build:vendor']);
-});
-
-
-gulp.task('serve', ['watch'], function () {
-    browserSync.init({
-        port: 4000,
-        server: {
-            baseDir: "./build",
-            index: "index.html"
-        },
-        ui: false
-    });
-});
-
-// The default task (called when you run `gulp` from cli) 
-gulp.task('default', ['serve', 'build']);
+// Gult default task (called when you run `gulp` from cli)
+gulp.task('default', ['serve']);
